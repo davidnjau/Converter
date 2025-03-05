@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -31,9 +32,9 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     private final PublicUsersRepository publicUsersRepository;
 
     @Getter
-    private final List<PropertyDetails> propertyDetailsList = new ArrayList<>();
+    private final List<PropertyDetails> propertyDetailsList = new CopyOnWriteArrayList<>();
     @Getter
-    private final List<PublicUsers> publicUsersList = new ArrayList<>();
+    private final List<PublicUsers> publicUsersList = new CopyOnWriteArrayList<>();
 
     public FileProcessingServiceImpl(PublicUsersRepository publicUsersRepository) {
         this.publicUsersRepository = publicUsersRepository;
@@ -65,7 +66,10 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     private void processJsonObject(JsonNode node) {
         if (node.has("holding_type") && node.has("property_number")) {
             PropertyDetails property = objectMapper.convertValue(node, PropertyDetails.class);
-            propertyDetailsList.add(property);
+            synchronized (propertyDetailsList){
+                propertyDetailsList.add(property);
+            }
+
         } else if (node.has("Full Name") && node.has("Phone Num")) {
             UserDetails user = objectMapper.convertValue(node, UserDetails.class);
             boolean isUserExist = publicUsersRepository.existsById(user.getUserId());
@@ -77,7 +81,9 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 publicUsers.setEmailAddress(user.getEmail());
                 publicUsers.setFullName(user.getFullName());
                 publicUsers.setKraPin(user.getKrApIn());
-                publicUsersList.add(publicUsers);
+                synchronized (publicUsersList){
+                    publicUsersList.add(publicUsers);
+                }
             }
 
         } else {

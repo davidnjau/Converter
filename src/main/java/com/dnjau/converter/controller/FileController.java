@@ -22,7 +22,7 @@ public class FileController {
     @RequestMapping(value = "import", method = RequestMethod.POST)
     public ResponseEntity<String> processJson(@RequestParam("file") MultipartFile file) throws IOException {
 
-        CompletableFuture<Void> processingFuture = fileProcessingService.processFile(file);
+        fileProcessingService.processFile(file);
 
         return ResponseEntity.ok("File processing started in the background. You will be notified when it's done.");
     }
