@@ -5,10 +5,12 @@ import com.dnjau.converter.repository.NotificationRepository;
 import com.dnjau.converter.service_impl.service.NotificationService;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
@@ -30,6 +32,20 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = optionalNotification.get();
         String status = notification.getStatus();
         return "The status of the notification" + " is: " + status.toLowerCase();
+
+    }
+
+    @Override
+    public void updateStatus(String id, String status) {
+
+        log.info("Updating status of notification with id: {} to: {}", id, status);
+
+        notificationRepository.findById(id)
+                .map(notificationOld -> {
+                    notificationOld.setStatus(status);
+                    return notificationRepository.save(notificationOld);
+                }).orElse(null);
+
 
     }
 }

@@ -3,10 +3,13 @@ package com.dnjau.converter.service_impl.impl;
 import com.dnjau.converter.Pojo.EmailDetails;
 import com.dnjau.converter.Pojo.EnumeratedParcelUsers;
 import com.dnjau.converter.Pojo.PropertyDetails;
+import com.dnjau.converter.helper_class.NotificationStatus;
+import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.repository.PublicUsersRepository;
 import com.dnjau.converter.service_impl.service.EmailService;
 import com.dnjau.converter.service_impl.service.ExcelService;
+import com.dnjau.converter.service_impl.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -16,7 +19,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,9 +32,10 @@ public class ExcelServiceImpl implements ExcelService {
     private final FileProcessingServiceImpl fileProcessingService;
     private final PublicUsersRepository publicUsersRepository;
     private final EmailService emailService;
+    private final NotificationService notificationService;
 
     @Override
-    public String createExcelFile(String email, String fileName) {
+    public String createExcelFile(String email, String fileName, Notification notification) {
 
         try {
 
@@ -82,7 +85,7 @@ public class ExcelServiceImpl implements ExcelService {
             emailDetails.setMsgBody("Please find the attached file.");
 
             String result = emailService.sendMailWithAttachment(
-                    emailDetails, newWorkbookByte, fileName+".xlsx");
+                    emailDetails, newWorkbookByte, fileName+".xlsx", notification);
 
             log.warn("propertyDetailsList: {}", propertyDetailsList.size());
 
@@ -90,6 +93,8 @@ public class ExcelServiceImpl implements ExcelService {
 
 
         }catch (Exception e) {
+            notificationService.updateStatus(notification.getId(), NotificationStatus.FAILED.name());
+
             e.printStackTrace();
         }
 

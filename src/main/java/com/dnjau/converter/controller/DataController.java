@@ -2,6 +2,8 @@ package com.dnjau.converter.controller;
 
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
+import com.dnjau.converter.helper_class.NotificationStatus;
+import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.service_impl.impl.FileProcessingServiceImpl;
 import com.dnjau.converter.service_impl.service.ExcelService;
@@ -20,7 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/data/")
+@RequestMapping("/data/api/v1/")
 @RequiredArgsConstructor
 public class DataController {
 
@@ -41,8 +43,16 @@ public class DataController {
 
     @GetMapping("process-users")
     public ResponseEntity<String> processPublicUsers() {
-        publicUserService.addUsers();
-        return ResponseEntity.ok("Users are being processed.");
+
+        Notification notification = new Notification();
+        notification.setStatus(NotificationStatus.PENDING.name());
+        notification = notificationService.saveNotification(notification);
+
+        publicUserService.addUsers(notification);
+
+        return ResponseEntity.ok("Users are being processed." +
+                "Use the following link to check the status.\n" +
+                "http://localhost:7001/data/api/v1/notification/" + notification.getId());
     }
 
     @GetMapping("process-workbook")
@@ -51,15 +61,20 @@ public class DataController {
             @RequestParam String fileName
     ) {
 
-        String result = excelService.createExcelFile(emailAddress, fileName);
+        Notification notification = new Notification();
+        notification.setStatus(NotificationStatus.PENDING.name());
+        notification = notificationService.saveNotification(notification);
+
+
+        String result = excelService.createExcelFile(emailAddress, fileName, notification);
         return ResponseEntity.ok(result);
 
     }
 
-    @GetMapping("/data/notification/{notificationId}")
+    @GetMapping("notification/{notificationId}")
     public ResponseEntity<String> getNotificationById(@PathVariable String notificationId) {
-        NotificationDetails notification = notificationService.findById(notificationId);
-        return ResponseEntity.ok(notification);
+        String notificationStr = notificationService.findById(notificationId);
+        return ResponseEntity.ok(notificationStr);
     }
 
 

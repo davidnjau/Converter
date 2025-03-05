@@ -4,10 +4,13 @@ package com.dnjau.converter.service_impl.impl;
 
 
 import com.dnjau.converter.Pojo.EmailDetails;
+import com.dnjau.converter.helper_class.NotificationStatus;
+import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.service_impl.service.EmailService;
+import com.dnjau.converter.service_impl.service.NotificationService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,7 +19,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -25,11 +27,13 @@ import java.io.IOException;
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
+    private final NotificationService notificationService;
 
     @Value("${spring.mail.username}") private String sender;
 
-    public EmailServiceImpl(JavaMailSender javaMailSender) {
+    public EmailServiceImpl(JavaMailSender javaMailSender, NotificationService notificationService) {
         this.javaMailSender = javaMailSender;
+        this.notificationService = notificationService;
     }
 
 
@@ -66,8 +70,8 @@ public class EmailServiceImpl implements EmailService {
     public String sendMailWithAttachment(
             EmailDetails details,
             byte[] fileBytes,
-            String fileName
-    ) {
+            String fileName,
+            Notification notification) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper;
 
@@ -91,11 +95,16 @@ public class EmailServiceImpl implements EmailService {
             // Send the email
             javaMailSender.send(mimeMessage);
 
+            notificationService.updateStatus(notification.getId(), NotificationStatus.COMPLETED.name());
+
+
             // Clean up: Delete temp file
             tempFile.delete();
 
             return "Mail sent successfully to " + details.getRecipient() + " and saved as " + fileName + ".xlsx";
         } catch (MessagingException | IOException e) {
+            notificationService.updateStatus(notification.getId(), NotificationStatus.FAILED.name());
+
             return "Error while sending mail: " + e.getMessage();
         }
     }

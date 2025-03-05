@@ -1,14 +1,16 @@
 package com.dnjau.converter.service_impl.impl;
 
+import com.dnjau.converter.helper_class.NotificationStatus;
+import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.repository.PublicUsersRepository;
+import com.dnjau.converter.service_impl.service.NotificationService;
 import com.dnjau.converter.service_impl.service.PublicUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,10 +21,11 @@ public class PublicUsersImpl implements PublicUserService {
 
     private final FileProcessingServiceImpl fileProcessingService;
     private final PublicUsersRepository publicUsersRepository;
+    private final NotificationService notificationService;
 
     @Async
     @Override
-    public CompletableFuture<Void> addUsers() {
+    public CompletableFuture<Void> addUsers(Notification notification) {
 
         List<PublicUsers> publicUserList = fileProcessingService.getPublicUsersList();
 
@@ -40,6 +43,9 @@ public class PublicUsersImpl implements PublicUserService {
          });
 
         log.info("Users {} have been added.", publicUserList.size());
+
+        notificationService.updateStatus(
+                notification.getId(), NotificationStatus.COMPLETED.name());
 
         publicUserList.clear();
 

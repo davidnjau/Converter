@@ -3,9 +3,12 @@ package com.dnjau.converter.service_impl.impl;
 import com.dnjau.converter.Pojo.CompanyDetails;
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
+import com.dnjau.converter.helper_class.NotificationStatus;
+import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.repository.PublicUsersRepository;
 import com.dnjau.converter.service_impl.service.FileProcessingService;
+import com.dnjau.converter.service_impl.service.NotificationService;
 import com.dnjau.converter.service_impl.service.PublicUserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,19 +35,21 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final PublicUsersRepository publicUsersRepository;
+    private final NotificationService notificationService;
 
     @Getter
     private final List<PropertyDetails> propertyDetailsList = new CopyOnWriteArrayList<>();
     @Getter
     private final List<PublicUsers> publicUsersList = new CopyOnWriteArrayList<>();
 
-    public FileProcessingServiceImpl(PublicUsersRepository publicUsersRepository) {
+    public FileProcessingServiceImpl(PublicUsersRepository publicUsersRepository, NotificationService notificationService) {
         this.publicUsersRepository = publicUsersRepository;
+        this.notificationService = notificationService;
     }
 
     @Async
     @Override
-    public CompletableFuture<Void> processFile(MultipartFile file) {
+    public CompletableFuture<Void> processFile(MultipartFile file, Notification notification) {
         try (InputStream inputStream = file.getInputStream()) {
             // Read the JSON file as a list of JSON objects
             List<JsonNode> jsonNodes = objectMapper.readValue(inputStream, new TypeReference<>() {});
@@ -55,6 +60,8 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
             log.info("Finished processing file. Total Properties: {}, Total Users: {}",
                     propertyDetailsList.size(), publicUsersList.size());
+
+            notificationService.updateStatus(notification.getId(), NotificationStatus.COMPLETED.name());
 
             return CompletableFuture.completedFuture(null);
 

@@ -1,7 +1,7 @@
 package com.dnjau.converter.service_impl.service;
 
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.dnjau.converter.model.Notification;
 
 public interface ExcelService {
-    String createExcelFile(String email, String fileName);
+    String createExcelFile(String email, String fileName, Notification notification);
 }
