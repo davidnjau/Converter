@@ -87,7 +87,7 @@ public class ExcelServiceImpl implements ExcelService {
             emailDetails.setMsgBody("Please find the attached file.");
 
             emailService.sendMailWithAttachment(
-                    emailDetails, newWorkbookByte, fileName, notification);
+                    emailDetails, newWorkbookByte, fileName+".xlsx", notification);
 
             log.warn("propertyDetailsList: {}", propertyDetailsList.size());
 

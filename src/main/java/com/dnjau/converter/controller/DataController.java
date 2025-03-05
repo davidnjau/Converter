@@ -53,8 +53,8 @@ public class DataController {
 
         return ResponseEntity.ok(new ResponseDetails(
                 "Users are being processed." +
-                        "Use the following link to check the status.\n" +
-                        "http://localhost:7001/data/api/v1/notification/" + notification.getId()
+                        "Use the following link to check the status. \n " +
+                        "http://localhost:7001/data/api/v1/notification/ " + notification.getId()
         ));
     }
 
@@ -72,8 +72,8 @@ public class DataController {
 
         return ResponseEntity.ok(new ResponseDetails(
                 "The workbook is being processed. Please wait." +
-                        "Use the following link to check the status.\n" +
-                        "http://localhost:7001/data/api/v1/notification/" + notification.getId()
+                        "Use the following link to check the status. \n " +
+                        "http://localhost:7001/data/api/v1/notification/ " + notification.getId()
         ));
     }
 

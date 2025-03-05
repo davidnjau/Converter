@@ -33,8 +33,8 @@ public class FileController {
 
         fileProcessingService.processFile(file, notification);
         return ResponseEntity.ok(new ResponseDetails("File processing started in the background. " +
-                "Use the following link to check the status.\n" +
-                "http://localhost:7001/data/api/v1/notification/" + notification.getId()));
+                "Use the following link to check the status. \n " +
+                "http://localhost:7001/data/api/v1/notification/ " + notification.getId()));
     }
 
 
