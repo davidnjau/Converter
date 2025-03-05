@@ -5,6 +5,7 @@ import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
+import com.dnjau.converter.model.ResponseDetails;
 import com.dnjau.converter.service_impl.impl.FileProcessingServiceImpl;
 import com.dnjau.converter.service_impl.service.ExcelService;
 import com.dnjau.converter.service_impl.service.NotificationService;
@@ -42,7 +43,7 @@ public class DataController {
     }
 
     @GetMapping("process-users")
-    public ResponseEntity<String> processPublicUsers() {
+    public ResponseEntity<ResponseDetails> processPublicUsers() {
 
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
@@ -50,13 +51,15 @@ public class DataController {
 
         publicUserService.addUsers(notification);
 
-        return ResponseEntity.ok("Users are being processed." +
-                "Use the following link to check the status.\n" +
-                "http://localhost:7001/data/api/v1/notification/" + notification.getId());
+        return ResponseEntity.ok(new ResponseDetails(
+                "Users are being processed." +
+                        "Use the following link to check the status.\n" +
+                        "http://localhost:7001/data/api/v1/notification/" + notification.getId()
+        ));
     }
 
     @GetMapping("process-workbook")
-    public ResponseEntity<String> getProcessedWorkbook(
+    public ResponseEntity<ResponseDetails> getProcessedWorkbook(
             @RequestParam String emailAddress,
             @RequestParam String fileName
     ) {
@@ -65,16 +68,19 @@ public class DataController {
         notification.setStatus(NotificationStatus.PENDING.name());
         notification = notificationService.saveNotification(notification);
 
+        excelService.createExcelFile(emailAddress, fileName, notification);
 
-        String result = excelService.createExcelFile(emailAddress, fileName, notification);
-        return ResponseEntity.ok(result);
-
+        return ResponseEntity.ok(new ResponseDetails(
+                "The workbook is being processed. Please wait." +
+                        "Use the following link to check the status.\n" +
+                        "http://localhost:7001/data/api/v1/notification/" + notification.getId()
+        ));
     }
 
     @GetMapping("notification/{notificationId}")
-    public ResponseEntity<String> getNotificationById(@PathVariable String notificationId) {
+    public ResponseEntity<ResponseDetails> getNotificationById(@PathVariable String notificationId) {
         String notificationStr = notificationService.findById(notificationId);
-        return ResponseEntity.ok(notificationStr);
+        return ResponseEntity.ok(new ResponseDetails(notificationStr));
     }
 
 

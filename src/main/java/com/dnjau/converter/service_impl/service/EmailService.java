@@ -11,6 +11,6 @@ public interface EmailService {
 
     // Method
     // To send an email with attachment
-    String sendMailWithAttachment(EmailDetails details, byte[] fileBytes, String fileName, Notification notification);
+    void sendMailWithAttachment(EmailDetails details, byte[] fileBytes, String fileName, Notification notification);
 
 }

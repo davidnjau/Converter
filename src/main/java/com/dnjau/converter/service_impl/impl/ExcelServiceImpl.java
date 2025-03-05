@@ -16,6 +16,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -34,8 +35,9 @@ public class ExcelServiceImpl implements ExcelService {
     private final EmailService emailService;
     private final NotificationService notificationService;
 
+    @Async
     @Override
-    public String createExcelFile(String email, String fileName, Notification notification) {
+    public void createExcelFile(String email, String fileName, Notification notification) {
 
         try {
 
@@ -84,12 +86,10 @@ public class ExcelServiceImpl implements ExcelService {
             emailDetails.setSubject("Processed Excel File - "+fileName);
             emailDetails.setMsgBody("Please find the attached file.");
 
-            String result = emailService.sendMailWithAttachment(
-                    emailDetails, newWorkbookByte, fileName+".xlsx", notification);
+            emailService.sendMailWithAttachment(
+                    emailDetails, newWorkbookByte, fileName, notification);
 
             log.warn("propertyDetailsList: {}", propertyDetailsList.size());
-
-            return result;
 
 
         }catch (Exception e) {
@@ -97,8 +97,6 @@ public class ExcelServiceImpl implements ExcelService {
 
             e.printStackTrace();
         }
-
-        return "There was an error creating the Excel file.";
     }
 
     private byte[] saveWorkBook(XSSFWorkbook workbook) {

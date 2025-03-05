@@ -31,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
         Notification notification = optionalNotification.get();
         String status = notification.getStatus();
-        return "The status of the notification" + " is: " + status.toLowerCase();
+        return "The status of the process" + " is: " + status.toLowerCase();
 
     }
 

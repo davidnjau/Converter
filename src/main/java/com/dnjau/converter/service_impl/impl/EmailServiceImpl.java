@@ -16,6 +16,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -67,7 +68,8 @@ public class EmailServiceImpl implements EmailService {
 
     // Method 2
     // To send an email with attachment
-    public String sendMailWithAttachment(
+    @Async
+    public void sendMailWithAttachment(
             EmailDetails details,
             byte[] fileBytes,
             String fileName,
@@ -101,11 +103,8 @@ public class EmailServiceImpl implements EmailService {
             // Clean up: Delete temp file
             tempFile.delete();
 
-            return "Mail sent successfully to " + details.getRecipient() + " and saved as " + fileName + ".xlsx";
         } catch (MessagingException | IOException e) {
             notificationService.updateStatus(notification.getId(), NotificationStatus.FAILED.name());
-
-            return "Error while sending mail: " + e.getMessage();
         }
     }
 

@@ -28,15 +28,15 @@ public class Notification {
     private String id;
     private String Status;
     private String message;
-    private String user;
+    private String userInfo;
 
     public Notification() {
     }
 
-    public Notification(String status, String message, String user) {
+    public Notification(String status, String message, String userInfo) {
         Status = status;
         this.message = message;
-        this.user = user;
+        this.userInfo = userInfo;
     }
 
     public String getId() {
@@ -64,10 +64,10 @@ public class Notification {
     }
 
     public String getUser() {
-        return user;
+        return userInfo;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUser(String userInfo) {
+        this.userInfo = userInfo;
     }
 }
