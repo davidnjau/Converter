@@ -1,5 +1,6 @@
 package com.dnjau.converter.service_impl.impl;
 
+import com.dnjau.converter.Pojo.CompanyDetails;
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.model.PublicUsers;
@@ -71,6 +72,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
             }
 
         } else if (node.has("Full Name") && node.has("Phone Num")) {
+
             UserDetails user = objectMapper.convertValue(node, UserDetails.class);
             boolean isUserExist = publicUsersRepository.existsById(user.getUserId());
             if (!isUserExist) {
@@ -81,6 +83,19 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 publicUsers.setEmailAddress(user.getEmail());
                 publicUsers.setFullName(user.getFullName());
                 publicUsers.setKraPin(user.getKrApIn());
+                publicUsers.setUserType("USER");
+                synchronized (publicUsersList){
+                    publicUsersList.add(publicUsers);
+                }
+            }
+
+        }else if(node.has("Kra Pin") && node.has("Registration Number")) {
+
+            CompanyDetails companyDetails = objectMapper.convertValue(node, CompanyDetails.class);
+            boolean isUserExist = publicUsersRepository.existsById(companyDetails.getUserId());
+            if (!isUserExist) {
+                // Create a new CompanyDetails object and save it to the database
+                PublicUsers publicUsers = getPublicUsers(companyDetails);
                 synchronized (publicUsersList){
                     publicUsersList.add(publicUsers);
                 }
@@ -89,6 +104,17 @@ public class FileProcessingServiceImpl implements FileProcessingService {
         } else {
             log.warn("Unknown JSON structure: {}", node);
         }
+    }
+
+    private static PublicUsers getPublicUsers(CompanyDetails companyDetails) {
+        PublicUsers publicUsers = new PublicUsers();
+        publicUsers.setUserId(companyDetails.getUserId());
+        publicUsers.setPhoneNumber(companyDetails.getPhoneNumber());
+        publicUsers.setEmailAddress(companyDetails.getEmail());
+        publicUsers.setFullName(companyDetails.getFullName());
+        publicUsers.setKraPin(companyDetails.getKraPin());
+        publicUsers.setUserType("COMPANY");
+        return publicUsers;
     }
 
 }

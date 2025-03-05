@@ -22,18 +22,18 @@ public class CompanyDetails {
     private String phoneNumber;
 
     @JsonProperty("Registration Number")
-    private String idNum;
+    private String registrationNumber;
 
     public CompanyDetails() {
     }
 
-    public CompanyDetails(String email, String kraPin, String fullName, String userId, String phoneNumber, String idNum) {
+    public CompanyDetails(String email, String kraPin, String fullName, String userId, String phoneNumber, String registrationNumber) {
         this.email = email;
         this.kraPin = kraPin;
         this.fullName = fullName;
         this.userId = userId;
         this.phoneNumber = phoneNumber;
-        this.idNum = idNum;
+        this.registrationNumber = registrationNumber;
     }
 
     public String getEmail() {
@@ -76,11 +76,11 @@ public class CompanyDetails {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getIdNum() {
-        return idNum;
+    public String getRegistrationNumber() {
+        return registrationNumber;
     }
 
-    public void setIdNum(String idNum) {
-        this.idNum = idNum;
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
     }
 }

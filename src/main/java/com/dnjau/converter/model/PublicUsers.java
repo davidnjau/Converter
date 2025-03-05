@@ -15,13 +15,16 @@ public class PublicUsers {
     private String emailAddress;
     private String fullName;
     private String kraPin;
+    private String userType;
 
-    public PublicUsers(String userId, String phoneNumber, String emailAddress, String fullName, String kraPin) {
+
+    public PublicUsers(String userId, String phoneNumber, String emailAddress, String fullName, String kraPin, String userType) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.fullName = fullName;
         this.kraPin = kraPin;
+        this.userType = userType;
     }
 
     public PublicUsers() {
@@ -67,4 +70,11 @@ public class PublicUsers {
         this.kraPin = kraPin;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
 }
