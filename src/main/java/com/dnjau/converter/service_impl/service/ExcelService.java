@@ -1,5 +1,7 @@
 package com.dnjau.converter.service_impl.service;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 public interface ExcelService {
-    void createExcelFile(String fileName);
+    XSSFWorkbook createExcelFile();
 }

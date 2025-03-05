@@ -39,6 +39,8 @@ public class PublicUsersImpl implements PublicUserService {
             }
          });
 
+        log.info("User have been added.");
+
         publicUserList.clear();
 
         return CompletableFuture.completedFuture(null);
