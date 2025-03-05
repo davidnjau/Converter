@@ -2,12 +2,15 @@ package com.dnjau.converter.service_impl.impl;
 
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
+import com.dnjau.converter.model.PublicUsers;
+import com.dnjau.converter.repository.PublicUsersRepository;
 import com.dnjau.converter.service_impl.service.FileProcessingService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 
@@ -23,14 +28,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class FileProcessingServiceImpl implements FileProcessingService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PublicUsersRepository publicUsersRepository;
 
     @Getter
     private final List<PropertyDetails> propertyDetailsList = new ArrayList<>();
     @Getter
-    private final List<UserDetails> userDetailsList = new ArrayList<>();
+    private final List<PublicUsers> publicUsersList = new ArrayList<>();
 
+    public FileProcessingServiceImpl(PublicUsersRepository publicUsersRepository) {
+        this.publicUsersRepository = publicUsersRepository;
+    }
+
+    @Async
     @Override
-    public void processFile(MultipartFile file) {
+    public CompletableFuture<Void> processFile(MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
             // Read the JSON file as a list of JSON objects
             List<JsonNode> jsonNodes = objectMapper.readValue(inputStream, new TypeReference<>() {});
@@ -40,11 +51,15 @@ public class FileProcessingServiceImpl implements FileProcessingService {
             }
 
             log.info("Finished processing file. Total Properties: {}, Total Users: {}",
-                    propertyDetailsList.size(), userDetailsList.size());
+                    propertyDetailsList.size(), publicUsersList.size());
+
+            return CompletableFuture.completedFuture(null);
 
         } catch (IOException e) {
             log.error("Error processing file", e);
         }
+        return CompletableFuture.completedFuture(null);
+
     }
 
     private void processJsonObject(JsonNode node) {
@@ -53,7 +68,18 @@ public class FileProcessingServiceImpl implements FileProcessingService {
             propertyDetailsList.add(property);
         } else if (node.has("Full Name") && node.has("Phone Num")) {
             UserDetails user = objectMapper.convertValue(node, UserDetails.class);
-            userDetailsList.add(user);
+            boolean isUserExist = publicUsersRepository.existsById(user.getUserId());
+            if (!isUserExist) {
+                // Create a new PublicUsers object and save it to the database
+                PublicUsers publicUsers = new PublicUsers();
+                publicUsers.setUserId(user.getUserId());
+                publicUsers.setPhoneNumber(user.getPhoneNum());
+                publicUsers.setEmailAddress(user.getEmail());
+                publicUsers.setFullName(user.getFullName());
+                publicUsers.setKraPin(user.getKrApIn());
+                publicUsersList.add(publicUsers);
+            }
+
         } else {
             log.warn("Unknown JSON structure: {}", node);
         }

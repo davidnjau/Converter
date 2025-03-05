@@ -15,15 +15,13 @@ public class PublicUsers {
     private String emailAddress;
     private String fullName;
     private String kraPin;
-    private String motherMaiden;
 
-    public PublicUsers(String userId, String phoneNumber, String emailAddress, String fullName, String kraPin, String motherMaiden) {
+    public PublicUsers(String userId, String phoneNumber, String emailAddress, String fullName, String kraPin) {
         this.userId = userId;
         this.phoneNumber = phoneNumber;
         this.emailAddress = emailAddress;
         this.fullName = fullName;
         this.kraPin = kraPin;
-        this.motherMaiden = motherMaiden;
     }
 
     public PublicUsers() {
@@ -69,11 +67,4 @@ public class PublicUsers {
         this.kraPin = kraPin;
     }
 
-    public String getMotherMaiden() {
-        return motherMaiden;
-    }
-
-    public void setMotherMaiden(String motherMaiden) {
-        this.motherMaiden = motherMaiden;
-    }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 @RequestMapping("/json/api/v1/")
 @RestController
@@ -21,8 +22,9 @@ public class FileController {
     @RequestMapping(value = "import", method = RequestMethod.POST)
     public ResponseEntity<String> processJson(@RequestParam("file") MultipartFile file) throws IOException {
 
-        fileProcessingService.processFile(file);
-        return ResponseEntity.ok("File is being processed.");
+        CompletableFuture<Void> processingFuture = fileProcessingService.processFile(file);
+
+        return ResponseEntity.ok("File processing started in the background. You will be notified when it's done.");
     }
 
 
