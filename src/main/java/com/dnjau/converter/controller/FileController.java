@@ -23,7 +23,6 @@ public class FileController {
     public ResponseEntity<String> processJson(@RequestParam("file") MultipartFile file) throws IOException {
 
         fileProcessingService.processFile(file);
-
         return ResponseEntity.ok("File processing started in the background. You will be notified when it's done.");
     }
 

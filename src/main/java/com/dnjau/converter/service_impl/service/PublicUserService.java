@@ -1,6 +1,8 @@
 package com.dnjau.converter.service_impl.service;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface PublicUserService {
 
-    void addUsers();
+    CompletableFuture<Void> addUsers();
 }
