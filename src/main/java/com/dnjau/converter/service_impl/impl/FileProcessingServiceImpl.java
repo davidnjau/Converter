@@ -6,6 +6,7 @@ import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.repository.PublicUsersRepository;
 import com.dnjau.converter.service_impl.service.FileProcessingService;
+import com.dnjau.converter.service_impl.service.PublicUserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -89,7 +90,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 }
             }
 
-        }else if(node.has("Kra Pin") && node.has("Registration Number")) {
+        }else if(node.has("Registration Number")) {
 
             CompanyDetails companyDetails = objectMapper.convertValue(node, CompanyDetails.class);
             boolean isUserExist = publicUsersRepository.existsById(companyDetails.getUserId());
@@ -104,6 +105,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
         } else {
             log.warn("Unknown JSON structure: {}", node);
         }
+
     }
 
     private static PublicUsers getPublicUsers(CompanyDetails companyDetails) {

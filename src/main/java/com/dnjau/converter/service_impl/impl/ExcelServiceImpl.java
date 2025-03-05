@@ -1,9 +1,11 @@
 package com.dnjau.converter.service_impl.impl;
 
+import com.dnjau.converter.Pojo.EmailDetails;
 import com.dnjau.converter.Pojo.EnumeratedParcelUsers;
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.repository.PublicUsersRepository;
+import com.dnjau.converter.service_impl.service.EmailService;
 import com.dnjau.converter.service_impl.service.ExcelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,50 +29,80 @@ public class ExcelServiceImpl implements ExcelService {
 
     private final FileProcessingServiceImpl fileProcessingService;
     private final PublicUsersRepository publicUsersRepository;
+    private final EmailService emailService;
 
     @Override
-    public XSSFWorkbook createExcelFile() {
+    public String createExcelFile(String email, String fileName) {
 
-        Queue<EnumeratedParcelUsers> propertyDetailsList = new ConcurrentLinkedQueue<>();
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        try {
 
-        List<PropertyDetails> propertyList = fileProcessingService.getPropertyDetailsList();
-        propertyList.forEach(property -> {
+            Queue<EnumeratedParcelUsers> propertyDetailsList = new ConcurrentLinkedQueue<>();
+            XSSFWorkbook workbook = new XSSFWorkbook();
 
-            String propertyNumber = property.getPropertyNumber();
-            String holdingType = property.getHoldingType();
-            String approximateArea = property.getApproximateArea();
-            String areaUnits = property.getAreaUnits();
-            String natureOfTitle = property.getNatureOfTitle();
-            String userId = property.getUserId();
+            List<PropertyDetails> propertyList = fileProcessingService.getPropertyDetailsList();
+            propertyList.forEach(property -> {
 
-            Optional<PublicUsers> publicUsers = publicUsersRepository.findByUserId(userId);
-            if (publicUsers.isPresent()) {
-                String phoneNumber = publicUsers.get().getPhoneNumber();
-                String emailAddress = publicUsers.get().getEmailAddress();
-                String fullName = publicUsers.get().getFullName();
-                String kraPin = publicUsers.get().getKraPin();
+                String propertyNumber = property.getPropertyNumber();
+                String holdingType = property.getHoldingType();
+                String approximateArea = property.getApproximateArea();
+                String areaUnits = property.getAreaUnits();
+                String natureOfTitle = property.getNatureOfTitle();
+                String userId = property.getUserId();
 
-                EnumeratedParcelUsers enumeratedParcelUsers = new EnumeratedParcelUsers(
-                        propertyNumber,
-                        holdingType,
-                        approximateArea,
-                        areaUnits,
-                        natureOfTitle,
-                        fullName, phoneNumber, emailAddress, kraPin);
-                propertyDetailsList.add(enumeratedParcelUsers);
-            }else {
-                log.warn("No userId: {}", userId);
-                log.warn("For propertyNumber: {}", propertyNumber);
-            }
+                Optional<PublicUsers> publicUsers = publicUsersRepository.findByUserId(userId);
+                if (publicUsers.isPresent()) {
+                    String phoneNumber = publicUsers.get().getPhoneNumber();
+                    String emailAddress = publicUsers.get().getEmailAddress();
+                    String fullName = publicUsers.get().getFullName();
+                    String kraPin = publicUsers.get().getKraPin();
 
-        });
+                    EnumeratedParcelUsers enumeratedParcelUsers = new EnumeratedParcelUsers(
+                            propertyNumber,
+                            holdingType,
+                            approximateArea,
+                            areaUnits,
+                            natureOfTitle,
+                            fullName, phoneNumber, emailAddress, kraPin);
+                    propertyDetailsList.add(enumeratedParcelUsers);
+                }else {
+                    log.warn("No userId: {}", userId);
+                    log.warn("For propertyNumber: {}", propertyNumber);
+                }
 
-        addNewSheetValues(workbook, propertyDetailsList);
+            });
 
-        log.warn("propertyDetailsList: {}", propertyDetailsList.size());
+            addNewSheetValues(workbook, propertyDetailsList);
 
-        return workbook;
+            byte[] newWorkbookByte = saveWorkBook(workbook);
+            workbook.close();
+
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setRecipient(email);
+            emailDetails.setSubject("Processed Excel File - "+fileName);
+            emailDetails.setMsgBody("Please find the attached file.");
+
+            String result = emailService.sendMailWithAttachment(
+                    emailDetails, newWorkbookByte, fileName+".xlsx");
+
+            log.warn("propertyDetailsList: {}", propertyDetailsList.size());
+
+            return result;
+
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "There was an error creating the Excel file.";
+    }
+
+    private byte[] saveWorkBook(XSSFWorkbook workbook) {
+        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void addNewSheetValues(XSSFWorkbook workbook, Queue<EnumeratedParcelUsers> propertyDetailsList) {

@@ -39,7 +39,7 @@ public class PublicUsersImpl implements PublicUserService {
             }
          });
 
-        log.info("User have been added.");
+        log.info("Users {} have been added.", publicUserList.size());
 
         publicUserList.clear();
 

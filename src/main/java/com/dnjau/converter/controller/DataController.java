@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
@@ -46,34 +47,15 @@ public class DataController {
     }
 
     @GetMapping("process-workbook")
-    public ResponseEntity<byte[]> getProcessedWorkbook() {
+    public ResponseEntity<String> getProcessedWorkbook(
+            @RequestParam String emailAddress,
+            @RequestParam String fileName
+    ) {
 
-
-        try {
-            XSSFWorkbook workbook = excelService.createExcelFile();
-
-            byte[] newWorkbookByte = saveWorkBook(workbook);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentDispositionFormData("attachment", "processed.xlsx");
-
-            workbook.close();
-
-            return new ResponseEntity<>(newWorkbookByte, httpHeaders, HttpStatus.OK);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String result = excelService.createExcelFile(emailAddress, fileName);
+        return ResponseEntity.ok(result);
 
     }
 
-    private byte[] saveWorkBook(XSSFWorkbook workbook) {
-        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()){
-            workbook.write(outputStream);
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 }
