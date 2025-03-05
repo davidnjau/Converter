@@ -5,16 +5,14 @@ import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.model.PublicUsers;
 import com.dnjau.converter.service_impl.impl.FileProcessingServiceImpl;
 import com.dnjau.converter.service_impl.service.ExcelService;
+import com.dnjau.converter.service_impl.service.NotificationService;
 import com.dnjau.converter.service_impl.service.PublicUserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -29,6 +27,7 @@ public class DataController {
     private final FileProcessingServiceImpl fileProcessingService;
     private final PublicUserService publicUserService;
     private final ExcelService excelService;
+    private final NotificationService notificationService;
 
     @GetMapping("properties")
     public ResponseEntity<List<PropertyDetails>> getPropertyDetails() {
@@ -56,6 +55,13 @@ public class DataController {
         return ResponseEntity.ok(result);
 
     }
+
+    @GetMapping("/data/notification/{notificationId}")
+    public ResponseEntity<String> getNotificationById(@PathVariable String notificationId) {
+        NotificationDetails notification = notificationService.findById(notificationId);
+        return ResponseEntity.ok(notification);
+    }
+
 
 
 }
