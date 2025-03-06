@@ -61,14 +61,15 @@ public class DataController {
     @GetMapping("process-workbook")
     public ResponseEntity<ResponseDetails> getProcessedWorkbook(
             @RequestParam String emailAddress,
-            @RequestParam String fileName
+            @RequestParam String fileName,
+            @RequestParam String processType
     ) {
 
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
         notification = notificationService.saveNotification(notification);
 
-        excelService.createExcelFile(emailAddress, fileName, notification);
+        excelService.createExcelFile(emailAddress, fileName, notification,processType);
 
         return ResponseEntity.ok(new ResponseDetails(
                 "The workbook is being processed. Please wait." +

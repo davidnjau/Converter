@@ -3,6 +3,8 @@ package com.dnjau.converter.service_impl.impl;
 import com.dnjau.converter.Pojo.EmailDetails;
 import com.dnjau.converter.Pojo.EnumeratedParcelUsers;
 import com.dnjau.converter.Pojo.PropertyDetails;
+import com.dnjau.converter.Pojo.SurveyProcessDetails;
+import com.dnjau.converter.helper_class.FileType;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
@@ -37,8 +39,93 @@ public class ExcelServiceImpl implements ExcelService {
 
     @Async
     @Override
-    public void createExcelFile(String email, String fileName, Notification notification) {
+    public void createExcelFile(String email, String fileName, Notification notification, String type) {
 
+        if (type.equalsIgnoreCase(FileType.NIS.name())) {
+            createNISData(email, fileName, notification);
+        }else if (type.equalsIgnoreCase(FileType.SURVEY.name())) {
+            createSurveyData(email, fileName, notification);
+        }else {
+            log.error("Invalid file type provided: {}", type);
+            notificationService.updateStatus(notification.getId(), NotificationStatus.FAILED.name());
+        }
+
+    }
+
+    private void createSurveyData(String email, String fileName, Notification notification){
+        try {
+
+            Queue<SurveyProcessDetails> surveyProcessDetailsList = new ConcurrentLinkedQueue<>();
+            XSSFWorkbook workbook = new XSSFWorkbook();
+
+            List<SurveyProcessDetails> processList = fileProcessingService.getSurveyProcessDetailsList();
+            processList.forEach(process -> {
+
+                String referenceNumber = process.getReferenceNumber();
+                String requestType = process.getRequestType();
+                String reSurveyType = process.getReSurveyType();
+                String dateCreated = process.getDateCreated();
+
+                String licensedSurveyor = getPublicUsersByUserId(process.getLicensedSurveyor());
+                String authenticator = getPublicUsersByUserId(process.getAuthenticator());
+                String governmentSurveyor = getPublicUsersByUserId(process.getGovernmentSurveyor());
+                String cartographySrO = getPublicUsersByUserId(process.getCartographySrO());
+                String chiefChecker = getPublicUsersByUserId(process.getChiefChecker());
+                String checker = getPublicUsersByUserId(process.getChecker());
+                String chiefAuthenticator = getPublicUsersByUserId(process.getChiefAuthenticator());
+                String chiefSrO = getPublicUsersByUserId(process.getChiefSrO());
+                String dos = getPublicUsersByUserId(process.getDos());
+
+                SurveyProcessDetails surveyProcessDetail = new SurveyProcessDetails(
+                        referenceNumber,
+                        requestType,
+                        reSurveyType,
+                        dateCreated,
+                        licensedSurveyor,
+                        authenticator,
+                        governmentSurveyor,
+                        cartographySrO,
+                        chiefChecker,
+                        checker,
+                        chiefAuthenticator,
+                        chiefSrO,
+                        dos
+                );
+
+                surveyProcessDetailsList.add(surveyProcessDetail);
+
+
+            });
+
+            addNewSheetSurveyValues(workbook, surveyProcessDetailsList);
+
+            byte[] newWorkbookByte = saveWorkBook(workbook);
+            workbook.close();
+
+            EmailDetails emailDetails = new EmailDetails();
+            emailDetails.setRecipient(email);
+            emailDetails.setSubject("Processed Excel File - "+fileName);
+            emailDetails.setMsgBody("Please find the attached file.");
+
+            emailService.sendMailWithAttachment(
+                    emailDetails, newWorkbookByte, fileName+".xlsx", notification);
+
+            log.warn("propertyDetailsList: {}", surveyProcessDetailsList.size());
+
+
+        }catch (Exception e) {
+            notificationService.updateStatus(notification.getId(), NotificationStatus.FAILED.name());
+
+            e.printStackTrace();
+        }
+    }
+
+    private String getPublicUsersByUserId(String userId){
+        Optional<PublicUsers> publicUsers = publicUsersRepository.findByUserId(userId);
+        return publicUsers.orElse(null).getFullName();
+    }
+
+    private void createNISData(String email, String fileName, Notification notification){
         try {
 
             Queue<EnumeratedParcelUsers> propertyDetailsList = new ConcurrentLinkedQueue<>();
@@ -76,7 +163,7 @@ public class ExcelServiceImpl implements ExcelService {
 
             });
 
-            addNewSheetValues(workbook, propertyDetailsList);
+            addNewSheetPropertyValues(workbook, propertyDetailsList);
 
             byte[] newWorkbookByte = saveWorkBook(workbook);
             workbook.close();
@@ -108,7 +195,7 @@ public class ExcelServiceImpl implements ExcelService {
         }
     }
 
-    private void addNewSheetValues(XSSFWorkbook workbook, Queue<EnumeratedParcelUsers> propertyDetailsList) {
+    private void addNewSheetPropertyValues(XSSFWorkbook workbook, Queue<EnumeratedParcelUsers> propertyDetailsList) {
 
         // Create a new sheet
         Sheet enumeratedParcelsSheet = workbook.createSheet("Sheet 1");
@@ -139,6 +226,46 @@ public class ExcelServiceImpl implements ExcelService {
             dataRow.createCell(6).setCellValue(user.getEmailAddress());
             dataRow.createCell(7).setCellValue(user.getFullName());
             dataRow.createCell(8).setCellValue(user.getKraPin());
+        }
+
+//        return workbook; // Return the filled workbook
+    }
+    private void addNewSheetSurveyValues(XSSFWorkbook workbook, Queue<SurveyProcessDetails> propertyDetailsList) {
+
+        // Create a new sheet
+        Sheet enumeratedParcelsSheet = workbook.createSheet("Sheet 1");
+
+        // Define the header row values
+        String[] headerList = {
+                "referenceNumber", "reSurveyType", "dateCreated",
+                "licensedSurveyor",
+                "authenticator", "governmentSurveyor", "cartographySrO", "chiefChecker",
+                "checker", "chiefAuthenticator", "chiefSrO", "dos"
+        };
+
+        // Create the header row
+        Row headerRow = enumeratedParcelsSheet.createRow(0);
+        for (int i = 0; i < headerList.length; i++) {
+            Cell headerCell = headerRow.createCell(i);
+            headerCell.setCellValue(headerList[i]);
+        }
+
+        // Fill the sheet with data from the propertyDetailsList (Queue)
+        int rowNum = 1; // Start from the second row (after the header)
+        for (SurveyProcessDetails user : propertyDetailsList) {
+            Row dataRow = enumeratedParcelsSheet.createRow(rowNum++);
+            dataRow.createCell(0).setCellValue(user.getReferenceNumber());
+            dataRow.createCell(1).setCellValue(user.getReSurveyType());
+            dataRow.createCell(2).setCellValue(user.getDateCreated());
+            dataRow.createCell(3).setCellValue(user.getLicensedSurveyor());
+            dataRow.createCell(4).setCellValue(user.getAuthenticator());
+            dataRow.createCell(5).setCellValue(user.getGovernmentSurveyor());
+            dataRow.createCell(6).setCellValue(user.getCartographySrO());
+            dataRow.createCell(7).setCellValue(user.getChiefChecker());
+            dataRow.createCell(8).setCellValue(user.getChecker());
+            dataRow.createCell(9).setCellValue(user.getChiefAuthenticator());
+            dataRow.createCell(10).setCellValue(user.getChiefSrO());
+            dataRow.createCell(11).setCellValue(user.getDos());
         }
 
 //        return workbook; // Return the filled workbook

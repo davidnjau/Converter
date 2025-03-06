@@ -5,3 +5,4 @@ public enum NotificationStatus {
     COMPLETED,
     FAILED
 }
+

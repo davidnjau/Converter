@@ -1,9 +1,6 @@
 package com.dnjau.converter.service_impl.impl;
 
-import com.dnjau.converter.Pojo.CompanyDetails;
-import com.dnjau.converter.Pojo.PropertyDetails;
-import com.dnjau.converter.Pojo.SurveyProcessDetails;
-import com.dnjau.converter.Pojo.UserDetails;
+import com.dnjau.converter.Pojo.*;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
@@ -40,6 +37,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
     @Getter
     private final List<PropertyDetails> propertyDetailsList = new CopyOnWriteArrayList<>();
+    @Getter
     private final List<SurveyProcessDetails> surveyProcessDetailsList = new CopyOnWriteArrayList<>();
     @Getter
     private final List<PublicUsers> publicUsersList = new CopyOnWriteArrayList<>();
@@ -60,8 +58,8 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 processJsonObject(node);
             }
 
-            log.info("Finished processing file. Total Properties: {}, Total Users: {}",
-                    propertyDetailsList.size(), publicUsersList.size());
+            log.info("Finished processing file. Total Properties: {}, Total Users: {}, Total Survey Process Details: {}",
+                    propertyDetailsList.size(), publicUsersList.size(), surveyProcessDetailsList.size());
 
             notificationService.updateStatus(notification.getId(), NotificationStatus.COMPLETED.name());
 
@@ -111,6 +109,18 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 }
             }
 
+        }else if(node.has("employeenum")) {
+
+            StaffInfoDetails staffInfoDetails = objectMapper.convertValue(node, StaffInfoDetails.class);
+            boolean isUserExist = publicUsersRepository.existsById(staffInfoDetails.getUserId());
+            if (!isUserExist) {
+                // Create a new CompanyDetails object and save it to the database
+                PublicUsers publicUsers = getPublicUsers(staffInfoDetails);
+                synchronized (publicUsersList){
+                    publicUsersList.add(publicUsers);
+                }
+            }
+
         }else if(node.has("Re Survey Type")) {
 
             SurveyProcessDetails surveyProcessDetails = objectMapper.convertValue(node, SurveyProcessDetails.class);
@@ -122,6 +132,17 @@ public class FileProcessingServiceImpl implements FileProcessingService {
             log.warn("Unknown JSON structure: {}", node);
         }
 
+    }
+
+    private static PublicUsers getPublicUsers(StaffInfoDetails staffInfoDetails) {
+        PublicUsers publicUsers = new PublicUsers();
+        publicUsers.setUserId(staffInfoDetails.getUserId());
+        publicUsers.setPhoneNumber(staffInfoDetails.getPhoneNum());
+        publicUsers.setEmailAddress(staffInfoDetails.getEmail());
+        publicUsers.setFullName(staffInfoDetails.getFullName());
+        publicUsers.setKraPin("");
+        publicUsers.setUserType("STAFF");
+        return publicUsers;
     }
 
     private static PublicUsers getPublicUsers(CompanyDetails companyDetails) {
