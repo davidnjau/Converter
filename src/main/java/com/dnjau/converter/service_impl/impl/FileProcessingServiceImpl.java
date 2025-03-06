@@ -2,6 +2,7 @@ package com.dnjau.converter.service_impl.impl;
 
 import com.dnjau.converter.Pojo.CompanyDetails;
 import com.dnjau.converter.Pojo.PropertyDetails;
+import com.dnjau.converter.Pojo.SurveyProcessDetails;
 import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
@@ -39,6 +40,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
 
     @Getter
     private final List<PropertyDetails> propertyDetailsList = new CopyOnWriteArrayList<>();
+    private final List<SurveyProcessDetails> surveyProcessDetailsList = new CopyOnWriteArrayList<>();
     @Getter
     private final List<PublicUsers> publicUsersList = new CopyOnWriteArrayList<>();
 
@@ -109,7 +111,14 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 }
             }
 
-        } else {
+        }else if(node.has("Re Survey Type")) {
+
+            SurveyProcessDetails surveyProcessDetails = objectMapper.convertValue(node, SurveyProcessDetails.class);
+            synchronized (surveyProcessDetailsList){
+                surveyProcessDetailsList.add(surveyProcessDetails);
+            }
+
+        }else {
             log.warn("Unknown JSON structure: {}", node);
         }
 
