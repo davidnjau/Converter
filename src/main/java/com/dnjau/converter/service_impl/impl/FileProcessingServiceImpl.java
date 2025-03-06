@@ -50,6 +50,11 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     @Async
     @Override
     public CompletableFuture<Void> processFile(MultipartFile file, Notification notification) {
+
+        propertyDetailsList.clear();
+        surveyProcessDetailsList.clear();
+        publicUsersList.clear();
+
         try (InputStream inputStream = file.getInputStream()) {
             // Read the JSON file as a list of JSON objects
             List<JsonNode> jsonNodes = objectMapper.readValue(inputStream, new TypeReference<>() {});
@@ -73,6 +78,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
     }
 
     private void processJsonObject(JsonNode node) {
+
         if (node.has("holding_type") && node.has("property_number")) {
             PropertyDetails property = objectMapper.convertValue(node, PropertyDetails.class);
             synchronized (propertyDetailsList){
@@ -121,7 +127,7 @@ public class FileProcessingServiceImpl implements FileProcessingService {
                 }
             }
 
-        }else if(node.has("Re Survey Type")) {
+        }else if(node.has("Request Type")) {
 
             SurveyProcessDetails surveyProcessDetails = objectMapper.convertValue(node, SurveyProcessDetails.class);
             synchronized (surveyProcessDetailsList){

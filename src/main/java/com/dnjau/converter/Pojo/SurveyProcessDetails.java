@@ -1,11 +1,10 @@
 package com.dnjau.converter.Pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-
-@Getter
-@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SurveyProcessDetails {
 
     @JsonProperty("Reference Number")
@@ -84,5 +83,160 @@ public class SurveyProcessDetails {
         this.chiefAuthenticator = chiefAuthenticator;
         this.chiefSrO = chiefSrO;
         this.dos = dos;
+    }
+
+    public SurveyProcessDetails() {
+    }
+
+    public String getReferenceNumber() {
+        return referenceNumber;
+    }
+
+    public void setReferenceNumber(String referenceNumber) {
+        this.referenceNumber = referenceNumber;
+    }
+
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
+    public String getReSurveyType() {
+        return reSurveyType;
+    }
+
+    public void setReSurveyType(String reSurveyType) {
+        this.reSurveyType = reSurveyType;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public String getLicensedSurveyor() {
+        return licensedSurveyor;
+    }
+
+    public void setLicensedSurveyor(String licensedSurveyor) {
+        this.licensedSurveyor = licensedSurveyor;
+    }
+
+    public String getAuthenticator() {
+        return authenticator;
+    }
+
+    public void setAuthenticator(String authenticator) {
+        this.authenticator = authenticator;
+    }
+
+    public String getGovernmentSurveyor() {
+        return governmentSurveyor;
+    }
+
+    public void setGovernmentSurveyor(String governmentSurveyor) {
+        this.governmentSurveyor = governmentSurveyor;
+    }
+
+    public String getCartographySrO() {
+        return cartographySrO;
+    }
+
+    public void setCartographySrO(String cartographySrO) {
+        this.cartographySrO = cartographySrO;
+    }
+
+    public String getChiefChecker() {
+        return chiefChecker;
+    }
+
+    public void setChiefChecker(String chiefChecker) {
+        this.chiefChecker = chiefChecker;
+    }
+
+    public String getChecker() {
+        return checker;
+    }
+
+    public void setChecker(String checker) {
+        this.checker = checker;
+    }
+
+    public String getChiefAuthenticator() {
+        return chiefAuthenticator;
+    }
+
+    public void setChiefAuthenticator(String chiefAuthenticator) {
+        this.chiefAuthenticator = chiefAuthenticator;
+    }
+
+    public String getChiefSrO() {
+        return chiefSrO;
+    }
+
+    public void setChiefSrO(String chiefSrO) {
+        this.chiefSrO = chiefSrO;
+    }
+
+    public String getDos() {
+        return dos;
+    }
+
+    public void setDos(String dos) {
+        this.dos = dos;
+    }
+
+    public String getNumberOfUnits() {
+        return numberOfUnits;
+    }
+
+    public void setNumberOfUnits(String numberOfUnits) {
+        this.numberOfUnits = numberOfUnits;
+    }
+
+    public String getFrNumber() {
+        return frNumber;
+    }
+
+    public void setFrNumber(String frNumber) {
+        this.frNumber = frNumber;
+    }
+
+    public String getRequestStatus() {
+        return requestStatus;
+    }
+
+    public void setRequestStatus(String requestStatus) {
+        this.requestStatus = requestStatus;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getLandBlockRegister() {
+        return landBlockRegister;
+    }
+
+    public void setLandBlockRegister(String landBlockRegister) {
+        this.landBlockRegister = landBlockRegister;
+    }
+
+    public String getLandAdminApprovalLetterReference() {
+        return landAdminApprovalLetterReference;
+    }
+
+    public void setLandAdminApprovalLetterReference(String landAdminApprovalLetterReference) {
+        this.landAdminApprovalLetterReference = landAdminApprovalLetterReference;
     }
 }

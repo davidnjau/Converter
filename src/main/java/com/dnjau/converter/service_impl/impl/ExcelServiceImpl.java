@@ -121,8 +121,12 @@ public class ExcelServiceImpl implements ExcelService {
     }
 
     private String getPublicUsersByUserId(String userId){
-        Optional<PublicUsers> publicUsers = publicUsersRepository.findByUserId(userId);
-        return publicUsers.orElse(null).getFullName();
+        Optional<PublicUsers> optionalPublicUsers = publicUsersRepository.findByUserId(userId);
+        if (optionalPublicUsers.isEmpty()) return "";
+        PublicUsers publicUsers = optionalPublicUsers.get();
+        String fullName = publicUsers.getFullName();
+        if (fullName == null) return "";
+        return fullName;
     }
 
     private void createNISData(String email, String fileName, Notification notification){
@@ -237,7 +241,7 @@ public class ExcelServiceImpl implements ExcelService {
 
         // Define the header row values
         String[] headerList = {
-                "referenceNumber", "reSurveyType", "dateCreated",
+                "referenceNumber", "requestType", "reSurveyType", "dateCreated",
                 "licensedSurveyor",
                 "authenticator", "governmentSurveyor", "cartographySrO", "chiefChecker",
                 "checker", "chiefAuthenticator", "chiefSrO", "dos"
@@ -255,17 +259,20 @@ public class ExcelServiceImpl implements ExcelService {
         for (SurveyProcessDetails user : propertyDetailsList) {
             Row dataRow = enumeratedParcelsSheet.createRow(rowNum++);
             dataRow.createCell(0).setCellValue(user.getReferenceNumber());
-            dataRow.createCell(1).setCellValue(user.getReSurveyType());
-            dataRow.createCell(2).setCellValue(user.getDateCreated());
-            dataRow.createCell(3).setCellValue(user.getLicensedSurveyor());
-            dataRow.createCell(4).setCellValue(user.getAuthenticator());
-            dataRow.createCell(5).setCellValue(user.getGovernmentSurveyor());
-            dataRow.createCell(6).setCellValue(user.getCartographySrO());
-            dataRow.createCell(7).setCellValue(user.getChiefChecker());
-            dataRow.createCell(8).setCellValue(user.getChecker());
-            dataRow.createCell(9).setCellValue(user.getChiefAuthenticator());
-            dataRow.createCell(10).setCellValue(user.getChiefSrO());
-            dataRow.createCell(11).setCellValue(user.getDos());
+            dataRow.createCell(1).setCellValue(user.getRequestType());
+            dataRow.createCell(2).setCellValue(user.getReSurveyType());
+            dataRow.createCell(3).setCellValue(user.getDateCreated());
+
+            dataRow.createCell(4).setCellValue(user.getLicensedSurveyor());
+
+            dataRow.createCell(5).setCellValue(user.getAuthenticator());
+            dataRow.createCell(6).setCellValue(user.getGovernmentSurveyor());
+            dataRow.createCell(7).setCellValue(user.getCartographySrO());
+            dataRow.createCell(8).setCellValue(user.getChiefChecker());
+            dataRow.createCell(9).setCellValue(user.getChecker());
+            dataRow.createCell(10).setCellValue(user.getChiefAuthenticator());
+            dataRow.createCell(11).setCellValue(user.getChiefSrO());
+            dataRow.createCell(12).setCellValue(user.getDos());
         }
 
 //        return workbook; // Return the filled workbook
