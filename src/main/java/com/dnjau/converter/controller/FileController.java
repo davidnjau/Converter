@@ -17,11 +17,13 @@ import java.util.concurrent.CompletableFuture;
         origins =
                 {
                         "http://localhost:5174",
+                        "http://localhost:3000",
+                        "http://localhost:80",
 
                         "http://192.168.214.175:3000",
                         "http://192.168.214.175:80",
 
-                        "http://converter_frontend:7001/",
+                        "http://converter_frontend:3000",
                         "http://converter_frontend:80"
                 }
 )
