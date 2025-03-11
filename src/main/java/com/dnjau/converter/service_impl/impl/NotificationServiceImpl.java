@@ -54,13 +54,27 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public ArrayList<Notification> findUsingEmail(String email) {
         ArrayList<Notification> notificationList = notificationRepository.findNotificationByUserInfo(email);
+        notificationList.removeIf(notification -> notification.getCreatedAt() == null);
+
+        //Convert the status to lower case
+        notificationList.forEach(notification -> notification.setStatus(notification.getStatus().toLowerCase()));
+
+        //Sort the list by createdAt in descending order, the createdAt could be null in some cases
+        //So we need to check for null and handle it appropriately
+        notificationList.removeIf(notification -> notification.getCreatedAt() == null);
+
+        //Sort the list by createdAt in descending order
         notificationList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+
         return notificationList;
+
     }
 
     @Override
     public ArrayList<Notification> findAll() {
         List<Notification> notificationList = notificationRepository.findAll();
+        //Convert the status to lower case
+        notificationList.forEach(notification -> notification.setStatus(notification.getStatus().toLowerCase()));
 
         //Sort the list by createdAt in descending order, the createdAt could be null in some cases
         //So we need to check for null and handle it appropriately
