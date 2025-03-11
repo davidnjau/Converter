@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:5174")  // Allow only this origin
 @RestController
 @RequestMapping("/data/api/v1/")
 @RequiredArgsConstructor
@@ -67,6 +69,7 @@ public class DataController {
 
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
+        notification.setUser(emailAddress);
         notification = notificationService.saveNotification(notification);
 
         excelService.createExcelFile(emailAddress, fileName, notification,processType);
@@ -82,6 +85,21 @@ public class DataController {
     public ResponseEntity<ResponseDetails> getNotificationById(@PathVariable String notificationId) {
         String notificationStr = notificationService.findById(notificationId);
         return ResponseEntity.ok(new ResponseDetails(notificationStr));
+    }
+
+    @GetMapping("notification/")
+    public ResponseEntity<?> getNotifications(
+            @RequestParam(required = false) String emailAddress // Make it optional
+    ) {
+        List<Notification> notificationList;
+
+        if (emailAddress == null || emailAddress.isEmpty()) {
+            notificationList = notificationService.findAll(); // Fetch all notifications
+        } else {
+            notificationList = notificationService.findUsingEmail(emailAddress); // Fetch by email
+        }
+
+        return ResponseEntity.ok(notificationList);
     }
 
 

@@ -7,15 +7,13 @@ import com.dnjau.converter.service_impl.service.FileProcessingService;
 import com.dnjau.converter.service_impl.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+@CrossOrigin(origins = "http://localhost:5174")  // Allow only this origin
 @RequestMapping("/json/api/v1/")
 @RestController
 @RequiredArgsConstructor

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Slf4j
@@ -47,5 +48,15 @@ public class NotificationServiceImpl implements NotificationService {
                 }).orElse(null);
 
 
+    }
+
+    @Override
+    public ArrayList<Notification> findUsingEmail(String email) {
+        return notificationRepository.findNotificationById(email);
+    }
+
+    @Override
+    public ArrayList<Notification> findAll() {
+        return new ArrayList<>(notificationRepository.findAll());
     }
 }
