@@ -25,8 +25,16 @@ import java.util.List;
 
 @CrossOrigin(
         origins =
-                {"http://localhost:5174", "http://192.168.214.175:3000", "http://192.168.214.175:80"}
-)  // Allow only this origin
+                {
+                        "http://localhost:5174",
+
+                        "http://192.168.214.175:3000",
+                        "http://192.168.214.175:80",
+
+                        "http://converter_frontend:7001/",
+                        "http://converter_frontend:80"
+                }
+)
 @RestController
 @RequestMapping("/data/api/v1/")
 @RequiredArgsConstructor

@@ -15,7 +15,15 @@ import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin(
         origins =
-                {"http://localhost:5174", "http://192.168.214.175:3000", "http://192.168.214.175:80"}
+                {
+                        "http://localhost:5174",
+
+                        "http://192.168.214.175:3000",
+                        "http://192.168.214.175:80",
+
+                        "http://converter_frontend:7001/",
+                        "http://converter_frontend:80"
+                }
 )
 @RequestMapping("/json/api/v1/")
 @RestController
