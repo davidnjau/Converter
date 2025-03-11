@@ -1,5 +1,6 @@
 package com.dnjau.converter.controller;
 
+import com.dnjau.converter.Pojo.NotificationDetails;
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
 import com.dnjau.converter.helper_class.NotificationStatus;
@@ -26,7 +27,7 @@ import java.util.List;
 @CrossOrigin(
         origins =
                 {
-                        "http://localhost:5174",
+                        "http://localhost:5173",
                         "http://localhost:3000",
                         "http://localhost:80",
 
@@ -104,7 +105,7 @@ public class DataController {
     public ResponseEntity<?> getNotifications(
             @RequestParam(required = false) String emailAddress // Make it optional
     ) {
-        List<Notification> notificationList;
+        ArrayList<NotificationDetails> notificationList;
 
         if (emailAddress == null || emailAddress.isEmpty()) {
             notificationList = notificationService.findAll(); // Fetch all notifications

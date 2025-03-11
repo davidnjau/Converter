@@ -1,5 +1,6 @@
 package com.dnjau.converter.service_impl.impl;
 
+import com.dnjau.converter.Pojo.NotificationDetails;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.repository.NotificationRepository;
 import com.dnjau.converter.service_impl.service.NotificationService;
@@ -51,42 +52,83 @@ public class NotificationServiceImpl implements NotificationService {
 
     }
 
+
+
     @Override
-    public ArrayList<Notification> findUsingEmail(String email) {
+    public ArrayList<NotificationDetails> findUsingEmail(String email) {
+
         ArrayList<Notification> notificationList = notificationRepository.findNotificationByUserInfo(email);
         notificationList.removeIf(notification -> notification.getCreatedAt() == null);
 
-        //Convert the status to lower case
-        notificationList.forEach(notification -> notification.setStatus(notification.getStatus().toLowerCase()));
+        ArrayList<NotificationDetails> notificationDetailsList = new ArrayList<>();
+        for (Notification notification : notificationList) {
 
-        //Sort the list by createdAt in descending order, the createdAt could be null in some cases
-        //So we need to check for null and handle it appropriately
-        notificationList.removeIf(notification -> notification.getCreatedAt() == null);
+            NotificationDetails notificationDetails = new NotificationDetails(
+                    notification.getId(),
+                    notification.getStatus().toLowerCase(),
+                    String.valueOf(notification.getCreatedAt()),
+                    notification.getUserInfo(),
+                    notification.getMessage(),
+                    getTimeElapsed(notification)
+            );
+            notificationDetailsList.add(notificationDetails);
+
+        }
 
         //Sort the list by createdAt in descending order
-        notificationList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+        notificationDetailsList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-        return notificationList;
+        return notificationDetailsList;
 
     }
 
-    @Override
-    public ArrayList<Notification> findAll() {
-        List<Notification> notificationList = notificationRepository.findAll();
-        //Convert the status to lower case
-        notificationList.forEach(notification -> notification.setStatus(notification.getStatus().toLowerCase()));
+    //Create a method to get the Time elapsed since the notification was created based on the createdAt
+    public String getTimeElapsed(Notification notification) {
+        long currentTime = System.currentTimeMillis();
+        long timeElapsed = currentTime - notification.getCreatedAt().getTime();
 
-        //Sort the list by createdAt in descending order, the createdAt could be null in some cases
-        //So we need to check for null and handle it appropriately
+        //Convert milliseconds to seconds
+        long secondsElapsed = timeElapsed / 1000;
+
+        //Convert seconds to minutes
+        long minutesElapsed = secondsElapsed / 60;
+
+        //Convert minutes to hours
+        long hoursElapsed = minutesElapsed / 60;
+
+        //Convert hours to days
+        long daysElapsed = hoursElapsed / 24;
+
+        //Return the time elapsed in a readable format
+        return String.format("%d days, %d hours, %d minutes", daysElapsed, hoursElapsed % 24, minutesElapsed % 60);
+    }
+
+    @Override
+    public ArrayList<NotificationDetails> findAll() {
+        ArrayList<Notification> notificationList = new ArrayList<>(notificationRepository.findAll());
+
         notificationList.removeIf(notification -> notification.getCreatedAt() == null);
 
+        ArrayList<NotificationDetails> notificationDetailsList = new ArrayList<>();
+        for (Notification notification : notificationList) {
+
+            NotificationDetails notificationDetails = new NotificationDetails(
+                    notification.getId(),
+                    notification.getStatus().toLowerCase(),
+                    String.valueOf(notification.getCreatedAt()),
+                    notification.getUserInfo(),
+                    notification.getMessage(),
+                    getTimeElapsed(notification)
+            );
+            notificationDetailsList.add(notificationDetails);
+
+        }
+
         //Sort the list by createdAt in descending order
-        notificationList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+        notificationDetailsList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
-        //reduce the list to only the first 10 notifications
-        notificationList = notificationList.subList(0, Math.min(notificationList.size(), 10));
+        return notificationDetailsList;
 
-        return new ArrayList<>(notificationList);
 
     }
 }
