@@ -58,55 +58,40 @@ public class NotificationServiceImpl implements NotificationService {
     public ArrayList<NotificationDetails> findUsingEmail(String email) {
 
         ArrayList<Notification> notificationList = notificationRepository.findNotificationByUserInfo(email);
-        notificationList.removeIf(notification -> notification.getCreatedAt() == null);
 
-        ArrayList<NotificationDetails> notificationDetailsList = new ArrayList<>();
-        for (Notification notification : notificationList) {
-
-            NotificationDetails notificationDetails = new NotificationDetails(
-                    notification.getId(),
-                    notification.getStatus().toLowerCase(),
-                    String.valueOf(notification.getCreatedAt()),
-                    notification.getUserInfo(),
-                    notification.getMessage(),
-                    getTimeElapsed(notification)
-            );
-            notificationDetailsList.add(notificationDetails);
-
-        }
-
-        //Sort the list by createdAt in descending order
-        notificationDetailsList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
-
-        return notificationDetailsList;
+        return processNotifications(notificationList);
 
     }
 
     //Create a method to get the Time elapsed since the notification was created based on the createdAt
     public String getTimeElapsed(Notification notification) {
-        long currentTime = System.currentTimeMillis();
-        long timeElapsed = currentTime - notification.getCreatedAt().getTime();
+        long timeElapsed = System.currentTimeMillis() - notification.getCreatedAt().getTime();
 
-        //Convert milliseconds to seconds
-        long secondsElapsed = timeElapsed / 1000;
+        long days = timeElapsed / (24 * 60 * 60 * 1000);
+        long hours = (timeElapsed / (60 * 60 * 1000)) % 24;
+        long minutes = (timeElapsed / (60 * 1000)) % 60;
 
-        //Convert seconds to minutes
-        long minutesElapsed = secondsElapsed / 60;
-
-        //Convert minutes to hours
-        long hoursElapsed = minutesElapsed / 60;
-
-        //Convert hours to days
-        long daysElapsed = hoursElapsed / 24;
-
-        //Return the time elapsed in a readable format
-        return String.format("%d days, %d hours, %d minutes", daysElapsed, hoursElapsed % 24, minutesElapsed % 60);
+        if (days > 0) {
+            return days + (days > 1 ? " days" : " day") + " ago";
+        } else if (hours > 0) {
+            return hours + (hours > 1 ? " hours" : " hour") + " ago";
+        } else if (minutes > 0) {
+            return minutes + (minutes > 1 ? " minutes" : " minute") + " ago";
+        } else {
+            return "less than a minute ago";
+        }
     }
+
 
     @Override
     public ArrayList<NotificationDetails> findAll() {
         ArrayList<Notification> notificationList = new ArrayList<>(notificationRepository.findAll());
 
+        return processNotifications(notificationList);
+
+    }
+
+    private ArrayList<NotificationDetails> processNotifications(ArrayList<Notification> notificationList) {
         notificationList.removeIf(notification -> notification.getCreatedAt() == null);
 
         ArrayList<NotificationDetails> notificationDetailsList = new ArrayList<>();
@@ -128,7 +113,5 @@ public class NotificationServiceImpl implements NotificationService {
         notificationDetailsList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
 
         return notificationDetailsList;
-
-
     }
 }
