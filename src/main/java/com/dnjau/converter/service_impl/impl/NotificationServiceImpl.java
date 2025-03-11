@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -52,11 +53,26 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public ArrayList<Notification> findUsingEmail(String email) {
-        return notificationRepository.findNotificationById(email);
+        ArrayList<Notification> notificationList = notificationRepository.findNotificationByUserInfo(email);
+        notificationList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+        return notificationList;
     }
 
     @Override
     public ArrayList<Notification> findAll() {
-        return new ArrayList<>(notificationRepository.findAll());
+        List<Notification> notificationList = notificationRepository.findAll();
+
+        //Sort the list by createdAt in descending order, the createdAt could be null in some cases
+        //So we need to check for null and handle it appropriately
+        notificationList.removeIf(notification -> notification.getCreatedAt() == null);
+
+        //Sort the list by createdAt in descending order
+        notificationList.sort((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()));
+
+        //reduce the list to only the first 10 notifications
+        notificationList = notificationList.subList(0, Math.min(notificationList.size(), 10));
+
+        return new ArrayList<>(notificationList);
+
     }
 }

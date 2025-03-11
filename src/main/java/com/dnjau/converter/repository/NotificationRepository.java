@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.ArrayList;
 
 public interface NotificationRepository extends JpaRepository<Notification, String> {
-    ArrayList<Notification> findNotificationById(String id);
+    ArrayList<Notification> findNotificationByUserInfo(String email);
 }
