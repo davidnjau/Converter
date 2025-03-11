@@ -3,6 +3,7 @@ package com.dnjau.converter.controller;
 import com.dnjau.converter.Pojo.NotificationDetails;
 import com.dnjau.converter.Pojo.PropertyDetails;
 import com.dnjau.converter.Pojo.UserDetails;
+import com.dnjau.converter.helper_class.FileType;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.PublicUsers;
@@ -63,6 +64,7 @@ public class DataController {
 
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
+        notification.setMessage(FileType.USER_PROCESSING.name());
         notification = notificationService.saveNotification(notification);
 
         publicUserService.addUsers(notification);
@@ -84,6 +86,7 @@ public class DataController {
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
         notification.setUser(emailAddress);
+        notification.setMessage(processType);
         notification = notificationService.saveNotification(notification);
 
         excelService.createExcelFile(emailAddress, fileName, notification,processType);

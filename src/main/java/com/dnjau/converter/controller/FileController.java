@@ -1,5 +1,6 @@
 package com.dnjau.converter.controller;
 
+import com.dnjau.converter.helper_class.FileType;
 import com.dnjau.converter.helper_class.NotificationStatus;
 import com.dnjau.converter.model.Notification;
 import com.dnjau.converter.model.ResponseDetails;
@@ -40,6 +41,7 @@ public class FileController {
 
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
+        notification.setMessage(FileType.FILE_UPLOAD.name());
         notification = notificationService.saveNotification(notification);
 
         fileProcessingService.processFile(file, notification);
