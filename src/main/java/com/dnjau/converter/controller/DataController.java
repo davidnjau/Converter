@@ -86,7 +86,7 @@ public class DataController {
         Notification notification = new Notification();
         notification.setStatus(NotificationStatus.PENDING.name());
         notification.setUser(emailAddress);
-        notification.setMessage(processType);
+        notification.setMessage(processType + " workbook.");
         notification = notificationService.saveNotification(notification);
 
         excelService.createExcelFile(emailAddress, fileName, notification,processType);

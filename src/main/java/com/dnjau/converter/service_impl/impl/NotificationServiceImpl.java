@@ -41,8 +41,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void updateStatus(String id, String status) {
 
-        log.info("Updating status of notification with id: {} to: {}", id, status);
-
         notificationRepository.findById(id)
                 .map(notificationOld -> {
                     notificationOld.setStatus(status);
@@ -97,12 +95,22 @@ public class NotificationServiceImpl implements NotificationService {
         ArrayList<NotificationDetails> notificationDetailsList = new ArrayList<>();
         for (Notification notification : notificationList) {
 
+            String messageStr = Optional.ofNullable(notification.getMessage())
+                    .map(msg -> msg.toLowerCase().replace("_", " "))
+                    .map(msg -> Character.toUpperCase(msg.charAt(0)) + msg.substring(1))
+                    .orElse("");
+
+            String statusStr = Optional.ofNullable(notification.getStatus())
+                    .map(status -> status.toLowerCase().replace("_", " "))
+                    .map(status -> Character.toUpperCase(status.charAt(0)) + status.substring(1))
+                    .orElse("");
+
             NotificationDetails notificationDetails = new NotificationDetails(
                     notification.getId(),
-                    notification.getStatus().toLowerCase(),
+                    statusStr,
                     String.valueOf(notification.getCreatedAt()),
                     notification.getUserInfo(),
-                    notification.getMessage(),
+                    messageStr,
                     getTimeElapsed(notification)
             );
             notificationDetailsList.add(notificationDetails);
