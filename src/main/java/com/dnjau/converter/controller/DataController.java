@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5174")  // Allow only this origin
+@CrossOrigin(
+        origins =
+                {"http://localhost:5174", "http://192.168.214.175:3000", "http://192.168.214.175:80"}
+)  // Allow only this origin
 @RestController
 @RequestMapping("/data/api/v1/")
 @RequiredArgsConstructor

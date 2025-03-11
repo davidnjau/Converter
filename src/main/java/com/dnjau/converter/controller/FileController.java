@@ -13,7 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-@CrossOrigin(origins = "http://localhost:5174")  // Allow only this origin
+@CrossOrigin(
+        origins =
+                {"http://localhost:5174", "http://192.168.214.175:3000", "http://192.168.214.175:80"}
+)
 @RequestMapping("/json/api/v1/")
 @RestController
 @RequiredArgsConstructor
